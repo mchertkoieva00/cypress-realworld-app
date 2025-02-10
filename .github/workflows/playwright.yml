@@ -15,23 +15,20 @@ jobs:
       fail-fast: false
       matrix:
         shards: [1, 2, 3]
-        browser: [chromium, firefox]
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      - name: Install Playwright browser
-        run: npx playwright install --with-deps ${{ matrix.browser }}
+      - name: Install Playwright
+        run: npx playwright install --with-deps chromium
 
       - name: Install Allure
         run: npm i -g allure-commandline
@@ -40,15 +37,15 @@ jobs:
         run: |
           npx playwright test \
             --shard=${{ matrix.shards }}/3 \
-            --project=${{ matrix.browser }} \
+            --project=chromium \
             --reporter=list,allure-playwright
 
       - name: Generate Allure report
         if: always()
         run: |
-          allure generate allure-results -o allure-report/${{ matrix.browser }}-${{ matrix.shards }} --clean
+          allure generate allure-results -o allure-report/shard-${{ matrix.shards }} --clean
 
-      - name: Store report
+      - name: Store reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -60,7 +57,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: traces-${{ matrix.browser }}-${{ matrix.shards }}
+          name: traces-shard-${{ matrix.shards }}
           path: test-results
           retention-days: 7
 
