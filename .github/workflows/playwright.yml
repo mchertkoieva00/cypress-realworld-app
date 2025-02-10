@@ -32,7 +32,9 @@ jobs:
 
       - name: Start app and run tests
         run: |
-          npm start & npx wait-on http://localhost:3000
+          npm start & 
+          npx wait-on http://localhost:3000
+          npx wait-on http://localhost:3001
           npx playwright test \
             --shard=${{ matrix.shards }}/3 \
             --project=chromium \
