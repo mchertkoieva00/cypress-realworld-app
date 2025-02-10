@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: |
           npm install --force
-          npm install -D allure-commandline  # Install allure locally instead of globally
+          npm install -D allure-commandline @playwright/test allure-playwright --force
 
       - name: Build app
         run: npm run build
