@@ -11,6 +11,9 @@ jobs:
   test:
     timeout-minutes: 30
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.50.0-jammy
+      options: --user 1001
     strategy:
       fail-fast: false
       matrix:
@@ -19,24 +22,18 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-          cache: 'npm'
-
       - name: Install dependencies
-        run: |
-          npm install --legacy-peer-deps
-          npm install -D @playwright/test allure-playwright
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npm install
 
       - name: Install Allure
         run: npm i -g allure-commandline
 
-      - name: Run tests
+      - name: Build app
+        run: npm run build
+
+      - name: Start app and run tests
         run: |
+          npm start & npx wait-on http://localhost:3000
           npx playwright test \
             --shard=${{ matrix.shards }}/3 \
             --project=chromium \
